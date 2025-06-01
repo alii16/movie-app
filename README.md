@@ -20,8 +20,6 @@ Cine.FO adalah portal web responsif dan modern yang dirancang untuk membantu And
 
 ## 🚀 Demo Langsung
 
-(Opsional: Jika Anda memiliki demo yang di-hosting di GitHub Pages, Vercel, Netlify, dll., tambahkan tautannya di sini)
-
 [Link ke Demo Langsung Anda (jika ada)](https://movie-app-ochre-three-77.vercel.app/)
 
 ## 🛠️ Teknologi yang Digunakan
@@ -87,4 +85,4 @@ Proyek ini dilisensikan di bawah [MIT License](LICENSE).
 Jika Anda memiliki pertanyaan atau saran, jangan ragu untuk menghubungi saya:
 
 * **Ali Polanunu** - [Profil GitHub Anda](https://github.com/alii16)
-* **alipolanunu077@gmail.com** - alipolanunu077@gmail.com (Opsional)
+* **alipolanunu077** - alipolanunu077@gmail.com

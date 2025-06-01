@@ -86,3 +86,7 @@ Jika Anda memiliki pertanyaan atau saran, jangan ragu untuk menghubungi saya:
 
 * **Ali Polanunu** - [Profil GitHub Anda](https://github.com/alii16)
 * **alipolanunu077** - alipolanunu077@gmail.com
+
+## 📄 Screenshot
+
+![image](https://github.com/user-attachments/assets/73b58a46-105f-4ebe-b167-28b2ab1116e2)

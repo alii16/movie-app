@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Website Nonton Film</title>
+  <script>
+    const API_KEY = 'YOUR_API_KEY'; // Ganti dengan API TMDb kamu
+
+    async function searchMovies() {
+      const query = document.getElementById('search').value;
+      const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${query}`);
+      const data = await res.json();
+      const movies = data.results;
+      const container = document.getElementById('movies');
+      container.innerHTML = '';
+
+      movies.forEach(async (movie) => {
+        const div = document.createElement('div');
+        div.innerHTML = `
+          <img src="https://image.tmdb.org/t/p/w200${movie.poster_path}" alt="${movie.title}" />
+          <h3>${movie.title}</h3>
+          <p>${movie.overview.substring(0, 100)}...</p>
+          <button onclick="showTrailer(${movie.id})">Lihat Trailer</button>
+          <hr />
+        `;
+        container.appendChild(div);
+      });
+    }
+
+    async function showTrailer(movieId) {
+      const res = await fetch(`https://api.themoviedb.org/3/movie/${movieId}/videos?api_key=${API_KEY}`);
+      const data = await res.json();
+      const trailer = data.results.find(video => video.site === 'YouTube' && video.type === 'Trailer');
+      if (trailer) {
+        window.open(`https://www.youtube.com/watch?v=${trailer.key}`, '_blank');
+      } else {
+        alert('Trailer tidak ditemukan.');
+      }
+    }
+  </script>
+</head>
+<body>
+  <h1>Cari Film</h1>
+  <input type="text" id="search" placeholder="Masukkan judul film">
+  <button onclick="searchMovies()">Cari</button>
+  <div id="movies"></div>
+</body>
+</html>

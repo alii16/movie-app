@@ -1,48 +1,405 @@
 <!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Website Nonton Film</title>
-  <script>
-    const API_KEY = 'YOUR_API_KEY'; // Ganti dengan API TMDb kamu
+<html lang="id">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cine.FO - Discover Amazing Movies</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="css/style.css" />
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: "#1f2937",
+              secondary: "#374151",
+              accent: "#f59e0b",
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="bg-gray-900 text-white min-h-screen">
+    <nav class="bg-gray-800 shadow-lg sticky top-0 z-50">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center h-16">
+          <div class="flex items-center space-x-2">
+            <i class="fas fa-film text-accent text-2xl"></i>
+            <h1
+              class="text-2xl font-bold text-white cursor-pointer"
+              onclick="showHome()"
+            >
+            <span class="text-accent">Cine.</span><span class="text-red-500">FO</span>
+            </h1>
+          </div>
 
-    async function searchMovies() {
-      const query = document.getElementById('search').value;
-      const res = await fetch(`https://api.themoviedb.org/3/search/movie?api_key=${API_KEY}&query=${query}`);
-      const data = await res.json();
-      const movies = data.results;
-      const container = document.getElementById('movies');
-      container.innerHTML = '';
+          <div class="hidden md:flex items-center space-x-6">
+            <button
+              onclick="showHome()"
+              class="nav-link px-3 py-2 text-gray-300 hover:text-white"
+              id="nav-home"
+            >
+              <i class="fas fa-home mr-2"></i>Beranda
+            </button>
+            <div class="relative group">
+              <button
+                class="nav-link px-3 py-2 text-gray-300 hover:text-white"
+                id="nav-genres"
+              >
+                <i class="fas fa-list mr-2"></i>Genre
+                <i class="fas fa-chevron-down ml-2 text-xs"></i>
+              </button>
+              <div
+                id="genre-dropdown-menu"
+                class="absolute left-0 mt-2 w-60 bg-gray-700 rounded-md shadow-lg py-1 z-20 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 ease-in-out"
+              >
+                <div
+                  id="loading-genres-dropdown"
+                  class="flex justify-center items-center py-2"
+                >
+                  <div class="loading-spinner w-6 h-6"></div>
+                </div>
+                <div
+                  id="genre-dropdown-list"
+                  class="grid grid-cols-2 gap-y-1"
+                ></div>
+              </div>
+            </div>
+            <button
+              onclick="showSearch()"
+              class="nav-link px-3 py-2 text-gray-300 hover:text-white"
+              id="nav-search"
+            >
+              <i class="fas fa-search mr-2"></i>Pencarian
+            </button>
+          </div>
 
-      movies.forEach(async (movie) => {
-        const div = document.createElement('div');
-        div.innerHTML = `
-          <img src="https://image.tmdb.org/t/p/w200${movie.poster_path}" alt="${movie.title}" />
-          <h3>${movie.title}</h3>
-          <p>${movie.overview.substring(0, 100)}...</p>
-          <button onclick="showTrailer(${movie.id})">Lihat Trailer</button>
-          <hr />
-        `;
-        container.appendChild(div);
+          <div class="md:hidden flex items-center">
+            <button
+              id="mobile-menu-button"
+              class="inline-flex items-center justify-center p-2 rounded-md text-gray-400 hover:text-white hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-inset focus:ring-white"
+            >
+              <span class="sr-only">Open main menu</span>
+              <i class="fas fa-bars h-6 w-6"></i>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div class="md:hidden hidden" id="mobile-menu">
+        <div class="px-2 pt-2 pb-3 space-y-1 sm:px-3">
+          <button
+            onclick="showHome()"
+            class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700"
+            id="mobile-nav-home"
+          >
+            <i class="fas fa-home mr-2"></i>Beranda
+          </button>
+          <button
+            onclick="showSearch()"
+            class="nav-link block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700"
+            id="mobile-nav-search"
+          >
+            <i class="fas fa-search mr-2"></i>Pencarian
+          </button>
+          <div class="relative">
+            <button
+              id="mobile-genre-button"
+              class="block px-3 py-2 rounded-md text-base font-medium text-gray-300 hover:text-white hover:bg-gray-700 w-full text-left"
+            >
+              <i class="fas fa-list mr-2"></i>Genre
+              <i class="fas fa-chevron-down ml-2 text-xs float-right mt-2"></i>
+            </button>
+            <div
+              id="mobile-genre-dropdown-menu"
+              class="hidden pl-4 py-1 space-y-1 bg-gray-700 rounded-md mt-1"
+            >
+              <div
+                id="loading-genres-mobile-dropdown"
+                class="flex justify-center items-center py-2"
+              >
+                <div class="loading-spinner w-6 h-6"></div>
+              </div>
+              <div
+                id="mobile-genre-dropdown-list"
+                class="grid grid-cols-2 gap-y-1"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </nav>
+
+    <div id="home-page">
+      <!-- BANNER RESPONSIVE -->
+      <div class="relative w-full h-[300px] md:h-[500px] overflow-hidden">
+        <img
+          src="img/banner5.png"
+          alt="Banner"
+          class="w-full h-full object-cover"
+        />
+        <div
+          class="absolute inset-0 bg-black bg-opacity-50 z-20 flex flex-col items-center justify-center p-4 text-center"
+        >
+          <h2
+            class="text-3xl md:text-6xl sm:text-xl font-bold mb-4 text-white drop-shadow-lg"
+          >
+            Jelajahi Dunia Sinema Tanpa Batas
+          </h2>
+          <p class="text-sm text-gray-300 mb-8 max-w-2xl drop-shadow-md">
+            Selamat datang di Cine.FO, portal film Anda. Temukan informasi
+            terlengkap tentang film-film trending, jelajahi berbagai genre, dan
+            saksikan trailer eksklusif. Petualangan sinematik Anda dimulai di
+            sini.
+          </p>
+          <div
+            class="flex flex-row justify-center items-center gap-3 md:space-y-0 md:space-x-4"
+          >
+            <button
+              onclick="showSearch()"
+              class="bg-accent hover:bg-yellow-600 text-white font-bold text-sm py-2 px-4 rounded-xl transition duration-300 transform hover:scale-105"
+            >
+              <i class="fas fa-search mr-2"></i>Cari Film
+            </button>
+            <button
+              onclick="showGenres()"
+              class="bg-gray-700 hover:bg-gray-600 text-white font-bold text-sm py-2 px-4 rounded-xl transition duration-300 transform hover:scale-105"
+            >
+              <i class="fas fa-list mr-2"></i>Lihat Genre
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- SECTION FILM TRENDING -->
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div class="mb-8">
+          <h3 class="text-4xl font-bold section-title mb-4">
+            ⭐ Film Trending
+          </h3>
+          <p class="text-gray-400 text-lg">Film paling populer minggu ini</p>
+        </div>
+
+        <div
+          id="loading-trending"
+          class="flex justify-center items-center py-12"
+        >
+          <div class="loading-spinner"></div>
+          <span class="ml-3 text-lg">Memuat film trending...</span>
+        </div>
+
+        <div
+          id="trending-movies"
+          class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+        ></div>
+      </div>
+    </div>
+
+    <div id="search-page" class="hidden">
+      <div class="relative w-full h-[300px] md:h-[500px] overflow-hidden">
+        <img
+          src="img/banner2.png"
+          alt="Banner"
+          class="w-full h-full object-cover"
+        />
+        <div
+          class="absolute inset-0 bg-black bg-opacity-50 z-20 flex flex-col items-center justify-center p-4 text-center"
+        >
+          <h2
+            class="text-3xl md:text-6xl sm:text-xl font-bold mb-4 text-white drop-shadow-lg"
+          >
+            Cari Film Favorit Anda
+          </h2>
+          <p class="text-sm text-gray-300 mb-8 max-w-2xl drop-shadow-md">
+            Temukan film dari ribuan koleksi dengan pencarian yang mudah
+          </p>
+          <div class="max-w-4xl">
+            <div
+              class="flex flex-col md:flex-row items-center justify-center gap-3"
+            >
+              <div class="relative flex-grow">
+                <div
+                  class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none"
+                >
+                  <i class="fas fa-search text-gray-400"></i>
+                </div>
+                <input
+                  type="text"
+                  id="search-input"
+                  class="block w-full pl-10 pr-3 py-2 md:py-4 border border-gray-600 rounded-xl leading-5 bg-gray-700 placeholder-gray-400 focus:outline-none focus:placeholder-gray-300 focus:ring-2 focus:ring-accent focus:border-accent text-white text-base md:text-lg"
+                  placeholder="Masukkan judul film yang ingin dicari..."
+                  onkeypress="handleEnterKey(event)"
+                />
+              </div>
+              <button
+                onclick="searchMovies()"
+                class="w-full md:w-auto bg-accent hover:bg-yellow-600 text-white font-bold py-2 px-4 md:py-4 md:px-8 rounded-xl transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-accent focus:ring-opacity-50"
+              >
+                <i class="fas fa-search mr-2"></i>
+                Cari Film
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div
+          id="loading-search"
+          class="hidden flex justify-center items-center py-12"
+        >
+          <div class="loading-spinner"></div>
+          <span class="ml-3 text-lg">Mencari film...</span>
+        </div>
+
+        <div id="search-results-container" class="hidden">
+          <div class="flex justify-between items-center mb-8">
+            <h3 class="text-3xl font-bold text-white">Hasil Pencarian</h3>
+            <div id="results-count" class="text-gray-400"></div>
+          </div>
+          <div
+            id="search-results"
+            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+          ></div>
+        </div>
+
+        <div id="no-results" class="hidden text-center py-12">
+          <div class="text-6xl text-gray-600 mb-4">
+            <i class="fas fa-search"></i>
+          </div>
+          <h3 class="text-2xl font-bold text-gray-400 mb-2">
+            Film Tidak Ditemukan
+          </h3>
+          <p class="text-gray-500">Coba kata kunci yang berbeda</p>
+        </div>
+
+        <div id="recommendations" class="mt-16">
+          <h3 class="text-3xl font-bold section-title mb-8">
+            ✨ Rekomendasi Untuk Anda
+          </h3>
+          <div
+            id="loading-recommendations"
+            class="flex justify-center items-center py-12"
+          >
+            <div class="loading-spinner"></div>
+            <span class="ml-3 text-lg">Memuat rekomendasi...</span>
+          </div>
+          <div
+            id="recommended-movies"
+            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <div id="genre-page" class="hidden">
+      <div class="relative w-full h-[300px] md:h-[500px] overflow-hidden">
+        <img
+          src="img/banner1.png"
+          alt="Banner"
+          class="w-full h-full object-cover"
+        />
+        <div
+          class="absolute inset-0 bg-black bg-opacity-50 z-20 flex flex-col items-center justify-center p-4 text-center"
+        >
+          <h2
+            class="text-3xl md:text-6xl sm:text-xl font-bold mb-4 text-white drop-shadow-lg"
+          >
+            Jelajahi Film Berdasarkan Genre
+          </h2>
+          <p class="text-sm text-gray-300 mb-8 max-w-2xl drop-shadow-md">
+            Temukan film trending dari genre favorit Anda
+          </p>
+        </div>
+      </div>
+
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div id="genre-nav" class="mb-12 hidden">
+          <div
+            id="loading-genres"
+            class="flex justify-center items-center py-12"
+          >
+            <div class="loading-spinner"></div>
+            <span class="ml-3 text-lg">Memuat genre...</span>
+          </div>
+          <div
+            id="genre-buttons"
+            class="flex flex-wrap justify-center gap-3"
+          ></div>
+        </div>
+
+        <div id="genre-movies-section">
+          <div class="mb-8">
+            <h3
+              id="genre-title"
+              class="text-3xl font-bold text-white mb-2"
+            ></h3>
+            <p class="text-gray-400">Film trending dalam genre ini</p>
+          </div>
+
+          <div
+            id="loading-genre-movies"
+            class="hidden flex justify-center items-center py-12"
+          >
+            <div class="loading-spinner"></div>
+            <span class="ml-3 text-lg">Memuat film...</span>
+          </div>
+
+          <div
+            id="genre-movies"
+            class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+          ></div>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="movie-modal"
+      class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4"
+    >
+      <div
+        class="bg-gray-800 rounded-2xl max-w-4xl w-full max-h-screen overflow-y-auto"
+      >
+        <div class="relative">
+          <button
+            onclick="closeModal()"
+            class="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+          >
+            <i class="fas fa-times text-2xl"></i>
+          </button>
+          <div id="modal-content"></div>
+        </div>
+      </div>
+    </div>
+
+    <footer class="bg-gray-800 py-8 mt-16">
+      <div class="max-w-7xl mx-auto px-4 text-center">
+        <p class="text-gray-400">
+          © 2025 <span class="text-accent">Cine.</span><span class="text-red-500">FO</span>. Data film dari
+          <a
+            href="https://www.themoviedb.org/"
+            class="text-accent hover:text-yellow-400"
+            target="_blank"
+            >The Movie Database (TMDb)</a
+          >
+        </p>
+      </div>
+    </footer>
+
+    <script src="js/api.js"></script>
+    <script src="js/ui.js"></script>
+    <script src="js/main.js"></script>
+
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        loadHeroCarousel(); // Panggil fungsi ini untuk menginisialisasi carousel
+        // ... kemudian panggil fungsi lain untuk memuat film trending, dll.
       });
-    }
-
-    async function showTrailer(movieId) {
-      const res = await fetch(`https://api.themoviedb.org/3/movie/${movieId}/videos?api_key=${API_KEY}`);
-      const data = await res.json();
-      const trailer = data.results.find(video => video.site === 'YouTube' && video.type === 'Trailer');
-      if (trailer) {
-        window.open(`https://www.youtube.com/watch?v=${trailer.key}`, '_blank');
-      } else {
-        alert('Trailer tidak ditemukan.');
-      }
-    }
-  </script>
-</head>
-<body>
-  <h1>Cari Film</h1>
-  <input type="text" id="search" placeholder="Masukkan judul film">
-  <button onclick="searchMovies()">Cari</button>
-  <div id="movies"></div>
-</body>
+    </script>
+  </body>
 </html>

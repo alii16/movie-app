@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Detail Film</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #121212;
+      color: #eee;
+      padding: 20px;
+      max-width: 700px;
+      margin: auto;
+    }
+    img {
+      max-width: 100%;
+      border-radius: 10px;
+      margin-bottom: 20px;
+    }
+    iframe {
+      width: 100%;
+      height: 360px;
+      border: none;
+      border-radius: 10px;
+      margin-top: 20px;
+    }
+    a.back-link {
+      display: inline-block;
+      margin-bottom: 20px;
+      color: #ccc;
+      text-decoration: none;
+    }
+    a.back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <a href="index.html" class="back-link">← Kembali ke Daftar Film</a>
+  <div id="detail">
+    <p>Memuat data film...</p>
+  </div>
+
+  <script>
+    const API_KEY = '5d476c1449223c5dea8e49b5c005808f';
+
+    // Ambil id dari URL
+    const params = new URLSearchParams(window.location.search);
+    const movieId = params.get('id');
+
+    const detailDiv = document.getElementById('detail');
+
+    if (!movieId) {
+      detailDiv.innerHTML = '<p>ID film tidak ditemukan di URL.</p>';
+    } else {
+      async function fetchMovieDetail() {
+        try {
+          // Fetch detail film
+          const res = await fetch(`https://api.themoviedb.org/3/movie/${movieId}?api_key=${API_KEY}&language=id-ID`);
+          if (!res.ok) throw new Error('Gagal memuat data film');
+          const movie = await res.json();
+
+          // Fetch video trailer
+          const videoRes = await fetch(`https://api.themoviedb.org/3/movie/${movieId}/videos?api_key=${API_KEY}&language=id-ID`);
+          const videoData = await videoRes.json();
+          const trailer = videoData.results.find(v => v.site === 'YouTube' && v.type === 'Trailer');
+
+          // Render HTML
+          detailDiv.innerHTML = `
+            <h1>${movie.title}</h1>
+            <img src="https://image.tmdb.org/t/p/w500${movie.poster_path}" alt="${movie.title}" />
+            <p><strong>Deskripsi:</strong> ${movie.overview || 'Tidak ada deskripsi.'}</p>
+            <p><strong>Tanggal Rilis:</strong> ${movie.release_date || '-'}</p>
+            <p><strong>Rating:</strong> ${movie.vote_average || '-'} / 10 (votes: ${movie.vote_count || 0})</p>
+          `;
+
+          // Jika ada trailer, tampilkan embed YouTube
+          if (trailer) {
+            detailDiv.innerHTML += `
+              <h2>Trailer</h2>
+              <iframe src="https://www.youtube.com/embed/${trailer.key}" allowfullscreen></iframe>
+            `;
+          } else {
+            detailDiv.innerHTML += '<p><em>Trailer tidak tersedia.</em></p>';
+          }
+
+        } catch (error) {
+          detailDiv.innerHTML = `<p>Terjadi kesalahan: ${error.message}</p>`;
+        }
+      }
+
+      fetchMovieDetail();
+    }
+  </script>
+</body>
+</html>
